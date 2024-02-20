@@ -27,6 +27,32 @@ async function run() {
         // await client.connect();
         const database = client.db('DailyDo');
         const tasksCollection = database.collection('allTasks');
+        const projectCollection = database.collection('projects');
+
+        app.post('/projects', async (req, res) => {
+            const projectInfo = req.body;
+            const result = await projectCollection.insertOne(projectInfo);
+
+            res.send(result);
+        })
+
+        app.get('/projects', async (req, res) => {
+            let query = {};
+
+            if (req.query.email) {
+                query = { email: req.query.email }
+            }
+            const result = await projectCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.get('/projects/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const project = await projectCollection.findOne(query);
+
+            res.send(project)
+        })
 
 
         app.post('/tasks', async (req, res) => {
