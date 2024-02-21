@@ -28,6 +28,7 @@ async function run() {
         const database = client.db('DailyDo');
         const tasksCollection = database.collection('allTasks');
         const projectCollection = database.collection('projects');
+        const projectTaskCollection = database.collection('projectSubtasks')
 
         app.post('/projects', async (req, res) => {
             const projectInfo = req.body;
@@ -54,6 +55,27 @@ async function run() {
             res.send(project)
         })
 
+
+        app.post('/subtask', async (req, res) => {
+            const subtask = req.body;
+            const result = await projectTaskCollection.insertOne(subtask);
+
+            res.send(result);
+        })
+
+
+        app.get('/subtask', async (req, res) => {
+            let query = {};
+
+            console.log(req.query);
+            if(req.query.projectName){
+                query = {projectName: req.query.projectName};
+            }
+
+            const result = await projectTaskCollection.find(query).toArray();
+
+            res.send(result);
+        })
 
         app.post('/tasks', async (req, res) => {
             const task = req.body;
