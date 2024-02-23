@@ -67,13 +67,28 @@ async function run() {
         app.get('/subtask', async (req, res) => {
             let query = {};
 
-            console.log(req.query);
-            if(req.query.projectName){
-                query = {projectName: req.query.projectName};
+            if (req.query.projectName) {
+                query = { projectName: req.query.projectName };
             }
 
             const result = await projectTaskCollection.find(query).toArray();
+            res.send(result);
+        })
 
+        app.put('/subtask/:id', async (req, res) => {
+            const id = req.body._id;
+            const task = req.body;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            
+            const updateSubtask = {
+                $set: {
+                    taskStatus: task.taskStatus
+                }
+            }
+            
+            const result = await projectTaskCollection.updateOne(filter, updateSubtask,options)
+            
             res.send(result);
         })
 
