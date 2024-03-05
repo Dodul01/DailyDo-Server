@@ -29,6 +29,38 @@ async function run() {
         const tasksCollection = database.collection('allTasks');
         const projectCollection = database.collection('projects');
         const projectTaskCollection = database.collection('projectSubtasks')
+        const usersCollection = database.collection('users');
+        const companyCollection = database.collection('companyes');
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const company = { companyName: user.companyName };
+            const insertCompany = await companyCollection.insertOne(company);
+            const result = await usersCollection.insertOne(user);
+
+            res.send(result);
+        })
+
+        app.post('/normalUser', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+
+            res.send(result);
+        })
+
+        app.get('/allUsers', async (req, res) => {
+            const cursor = usersCollection.find();
+            const result = await cursor.toArray();
+
+            res.send(result)
+        })
+
+        app.get('/companyes', async (req, res) => {
+            const cursor = companyCollection.find();
+            const result = await cursor.toArray();
+
+            res.send(result);
+        })
 
         app.post('/projects', async (req, res) => {
             const projectInfo = req.body;
@@ -80,15 +112,23 @@ async function run() {
             const task = req.body;
             const filter = { _id: new ObjectId(id) };
             const options = { upsert: true };
-            
+
             const updateSubtask = {
                 $set: {
                     taskStatus: task.taskStatus
                 }
             }
-            
-            const result = await projectTaskCollection.updateOne(filter, updateSubtask,options)
-            
+
+            const result = await projectTaskCollection.updateOne(filter, updateSubtask, options)
+
+            res.send(result);
+        })
+
+        app.delete('/subtask/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await projectTaskCollection.deleteOne(query);
+
             res.send(result);
         })
 
